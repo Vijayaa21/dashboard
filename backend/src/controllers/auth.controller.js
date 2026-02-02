@@ -1,5 +1,11 @@
 import User from '../models/User.model.js';
-import { generateToken } from '../middleware/auth.middleware.js';
+import { 
+  generateToken, 
+  generateRefreshToken, 
+  verifyRefreshToken,
+  setRefreshTokenCookie,
+  clearRefreshTokenCookie 
+} from '../middleware/auth.middleware.js';
 import { ApiError } from '../middleware/errorHandler.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import logger from '../utils/logger.js';
@@ -23,8 +29,12 @@ export const signup = asyncHandler(async (req, res) => {
     password,
   });
 
-  // Generate token
+  // Generate tokens
   const token = generateToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
+
+  // Set refresh token as httpOnly cookie
+  setRefreshTokenCookie(res, refreshToken);
 
   logger.info(`New user registered: ${email}`);
 
@@ -64,8 +74,12 @@ export const login = asyncHandler(async (req, res) => {
     throw new ApiError(401, 'Invalid email or password');
   }
 
-  // Generate token
+  // Generate tokens
   const token = generateToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
+
+  // Set refresh token as httpOnly cookie
+  setRefreshTokenCookie(res, refreshToken);
 
   logger.info(`User logged in: ${email}`);
 
@@ -103,5 +117,61 @@ export const getMe = asyncHandler(async (req, res) => {
         updatedAt: user.updatedAt,
       },
     },
+  });
+});
+
+// @desc    Refresh access token
+// @route   POST /api/v1/auth/refresh-token
+// @access  Public (with valid refresh token cookie)
+export const refreshToken = asyncHandler(async (req, res) => {
+  const refreshTokenFromCookie = req.cookies.refreshToken;
+
+  if (!refreshTokenFromCookie) {
+    throw new ApiError(401, 'No refresh token provided');
+  }
+
+  // Verify refresh token
+  const decoded = verifyRefreshToken(refreshTokenFromCookie);
+
+  if (!decoded) {
+    clearRefreshTokenCookie(res);
+    throw new ApiError(401, 'Invalid or expired refresh token');
+  }
+
+  // Get user from token
+  const user = await User.findById(decoded.id);
+
+  if (!user) {
+    clearRefreshTokenCookie(res);
+    throw new ApiError(401, 'User no longer exists');
+  }
+
+  // Generate new tokens
+  const newAccessToken = generateToken(user._id);
+  const newRefreshToken = generateRefreshToken(user._id);
+
+  // Set new refresh token cookie
+  setRefreshTokenCookie(res, newRefreshToken);
+
+  logger.info(`Token refreshed for user: ${user.email}`);
+
+  res.json({
+    success: true,
+    message: 'Token refreshed successfully',
+    data: {
+      token: newAccessToken,
+    },
+  });
+});
+
+// @desc    Logout user (clear refresh token cookie)
+// @route   POST /api/v1/auth/logout
+// @access  Public
+export const logout = asyncHandler(async (req, res) => {
+  clearRefreshTokenCookie(res);
+
+  res.json({
+    success: true,
+    message: 'Logged out successfully',
   });
 });

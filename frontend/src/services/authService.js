@@ -19,6 +19,22 @@ export const authService = {
     return response.data;
   },
 
+  // Logout user (clears refresh token cookie)
+  logout: async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (error) {
+      // Continue with local logout even if API call fails
+      console.error('Logout API error:', error);
+    }
+  },
+
+  // Refresh access token
+  refreshToken: async () => {
+    const response = await api.post('/auth/refresh-token');
+    return response.data;
+  },
+
   // Get profile
   getProfile: async () => {
     const response = await api.get('/me');

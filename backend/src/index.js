@@ -1,10 +1,12 @@
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 import config from './config/index.js';
 import connectDB from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
+import { apiLimiter } from './middleware/rateLimiter.js';
 import logger from './utils/logger.js';
 
 // Import routes
@@ -15,10 +17,17 @@ import taskRoutes from './routes/task.routes.js';
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: config.corsOrigin || 'http://localhost:3000',
+  credentials: true, // Allow cookies
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(morgan('dev'));
+
+// Apply rate limiting to all API routes
+app.use('/api/', apiLimiter);
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);

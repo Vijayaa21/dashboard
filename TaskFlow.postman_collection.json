@@ -112,6 +112,35 @@
           "response": []
         },
         {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "    console.log('Token refreshed successfully');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh-token"]
+            },
+            "description": "Refresh the access token using the refresh token stored in httpOnly cookie. The refresh token is automatically sent with credentials."
+          },
+          "response": []
+        },
+        {
           "name": "Logout User",
           "request": {
             "method": "POST",
@@ -125,7 +154,8 @@
               "raw": "{{baseUrl}}/auth/logout",
               "host": ["{{baseUrl}}"],
               "path": ["auth", "logout"]
-            }
+            },
+            "description": "Logout the user and clear the refresh token cookie."
           },
           "response": []
         }
