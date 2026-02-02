@@ -7,6 +7,11 @@ import connectDB from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 import logger from './utils/logger.js';
 
+// Import routes
+import authRoutes from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
+import taskRoutes from './routes/task.routes.js';
+
 const app = express();
 
 // Middleware
@@ -15,10 +20,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// API Routes (to be added)
-// app.use('/api/v1/auth', authRoutes);
-// app.use('/api/v1/users', userRoutes);
-// app.use('/api/v1/tasks', taskRoutes);
+// API Routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/me', userRoutes);
+app.use('/api/v1/tasks', taskRoutes);
 
 // Health check route
 app.get('/api/v1/health', (req, res) => {
