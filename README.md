@@ -6,6 +6,18 @@ A modern, full-stack task management application built with React and Node.js, f
 
 ---
 
+## ✅ Bonus Features Implemented
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Docker** | ✅ | Dockerfile & docker-compose.yml for containerized deployment |
+| **Unit Tests** | ✅ | Jest + Supertest with MongoDB Memory Server (25+ test cases) |
+| **Refresh Tokens** | ✅ | Secure httpOnly cookie-based refresh token rotation |
+| **Pagination** | ✅ | Server-side pagination with page, limit, total, pages |
+| **Rate Limiting** | ✅ | express-rate-limit on all API routes (100 req/15min, 10 for auth) |
+
+---
+
 ## 🛠️ Tech Stack
 
 ### Frontend
@@ -14,7 +26,7 @@ A modern, full-stack task management application built with React and Node.js, f
 - **TailwindCSS 4** - Utility-first CSS framework
 - **Framer Motion** - Animations
 - **React Router DOM** - Client-side routing
-- **Axios** - HTTP client
+- **Axios** - HTTP client with refresh token interceptor
 - **Lucide React** - Icons
 - **React Hot Toast** - Notifications
 
@@ -23,12 +35,18 @@ A modern, full-stack task management application built with React and Node.js, f
 - **Express.js 4.18** - Web framework
 - **MongoDB** - NoSQL database
 - **Mongoose 7.6** - ODM for MongoDB
-- **JWT (jsonwebtoken)** - Authentication
+- **JWT (jsonwebtoken)** - Access + Refresh token authentication
 - **bcryptjs** - Password hashing
 - **express-validator** - Input validation
+- **express-rate-limit** - API rate limiting
+- **cookie-parser** - Secure httpOnly cookie handling
 - **cors** - Cross-origin resource sharing
-- **helmet** - Security headers
 - **morgan** - HTTP request logger
+
+### Testing
+- **Jest** - Testing framework
+- **Supertest** - HTTP assertions
+- **MongoDB Memory Server** - In-memory database for tests
 
 ### DevOps
 - **Docker** - Containerization
@@ -174,6 +192,24 @@ cd backend
 docker-compose up --build
 ```
 
+### Running Tests
+```bash
+cd backend
+
+# Run all tests
+npm test
+
+# Run tests in watch mode (for development)
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+**Test Suites Include:**
+- **Auth Tests:** User registration, login, token refresh, logout, protected routes
+- **Task Tests:** CRUD operations, pagination, filtering, authorization
+
 ---
 
 ## 🔐 Demo Credentials
@@ -223,6 +259,7 @@ http://localhost:5000/api/v1
 | POST | `/auth/register` | Register new user |
 | POST | `/auth/login` | Login user |
 | GET | `/auth/me` | Get current user |
+| POST | `/auth/refresh-token` | Refresh access token |
 | POST | `/auth/logout` | Logout user |
 
 #### User Profile
