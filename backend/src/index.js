@@ -1,42 +1,50 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import morgan from 'morgan';
 import cors from 'cors';
-import dotenv from 'dotenv';
 
-// Load environment variables
-dotenv.config();
+import config from './config/index.js';
+import connectDB from './config/db.js';
+import { notFound, errorHandler } from './middleware/errorHandler.js';
+import logger from './utils/logger.js';
 
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Basic health check route
+// API Routes (to be added)
+// app.use('/api/v1/auth', authRoutes);
+// app.use('/api/v1/users', userRoutes);
+// app.use('/api/v1/tasks', taskRoutes);
+
+// Health check route
 app.get('/api/v1/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.json({ 
+    success: true,
+    status: 'ok',
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Internal Server Error' });
-});
+app.use(notFound);
+app.use(errorHandler);
 
 // Connect to MongoDB and start server
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/dashboard';
-
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('MongoDB connected');
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+const startServer = async () => {
+  try {
+    await connectDB();
+    app.listen(config.port, () => {
+      logger.info(`Server running in ${config.nodeEnv} mode on port ${config.port}`);
     });
-  })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err);
+  } catch (error) {
+    logger.error('Failed to start server:', error);
     process.exit(1);
-  });
+  }
+};
+
+startServer();
