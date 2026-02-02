@@ -42,9 +42,47 @@ export const protect = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Generate JWT token
+// Generate JWT access token (short-lived)
 export const generateToken = (id) => {
   return jwt.sign({ id }, config.jwtSecret, {
     expiresIn: config.jwtExpiresIn,
+  });
+};
+
+// Generate JWT refresh token (long-lived)
+export const generateRefreshToken = (id) => {
+  return jwt.sign({ id }, config.jwtRefreshSecret, {
+    expiresIn: config.jwtRefreshExpiresIn,
+  });
+};
+
+// Verify refresh token
+export const verifyRefreshToken = (token) => {
+  try {
+    return jwt.verify(token, config.jwtRefreshSecret);
+  } catch (error) {
+    return null;
+  }
+};
+
+// Set refresh token as httpOnly cookie
+export const setRefreshTokenCookie = (res, refreshToken) => {
+  const cookieOptions = {
+    httpOnly: true,
+    secure: config.nodeEnv === 'production', // Only HTTPS in production
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    path: '/',
+  };
+
+  res.cookie('refreshToken', refreshToken, cookieOptions);
+};
+
+// Clear refresh token cookie
+export const clearRefreshTokenCookie = (res) => {
+  res.cookie('refreshToken', '', {
+    httpOnly: true,
+    expires: new Date(0),
+    path: '/',
   });
 };
