@@ -3,11 +3,14 @@ import taskService from '../../services/taskService';
 import { Button, Input, Select, Modal, Loading } from '../../components/ui';
 import TaskForm from '../../components/tasks/TaskForm';
 import TaskCard from '../../components/tasks/TaskCard';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus,
   Search,
   Filter,
   RefreshCw,
+  ListTodo,
+  CheckSquare,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -125,32 +128,42 @@ const Tasks = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <motion.div 
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <CheckSquare className="w-6 h-6 text-amber-500" />
+            Tasks
+          </h1>
+          <p className="text-sm text-gray-400 mt-1">
             Manage and track your tasks
           </p>
         </div>
-        <Button onClick={handleCreateTask}>
-          <Plus className="w-4 h-4 mr-2" />
+        <Button onClick={handleCreateTask} icon={Plus}>
           Add Task
         </Button>
-      </div>
+      </motion.div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <motion.div 
+        className="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-800 p-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
         <form onSubmit={handleSearch} className="space-y-4">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <div className="flex-1">
               <Input
                 type="text"
                 placeholder="Search tasks..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10"
+                icon={Search}
               />
             </div>
 
@@ -176,60 +189,79 @@ const Tasks = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-2">
-              <Button type="submit" variant="secondary">
-                <Filter className="w-4 h-4 mr-2" />
+              <Button type="submit" variant="secondary" icon={Filter}>
                 Apply
               </Button>
               <Button
                 type="button"
                 variant="ghost"
                 onClick={handleClearFilters}
-              >
-                <RefreshCw className="w-4 h-4" />
-              </Button>
+                icon={RefreshCw}
+              />
             </div>
           </div>
         </form>
-      </div>
+      </motion.div>
 
       {/* Tasks List */}
       {loading ? (
         <Loading text="Loading tasks..." />
       ) : tasks.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Search className="w-8 h-8 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900">No tasks found</h3>
-          <p className="text-gray-500 mt-1">
+        <motion.div 
+          className="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-800 p-12 text-center"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <motion.div 
+            className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <ListTodo className="w-10 h-10 text-gray-500" />
+          </motion.div>
+          <h3 className="text-lg font-medium text-white">No tasks found</h3>
+          <p className="text-gray-400 mt-1">
             {search || statusFilter || priorityFilter
               ? 'Try adjusting your filters'
               : 'Create your first task to get started'}
           </p>
           {!search && !statusFilter && !priorityFilter && (
-            <Button onClick={handleCreateTask} className="mt-4">
-              <Plus className="w-4 h-4 mr-2" />
+            <Button onClick={handleCreateTask} className="mt-4" icon={Plus}>
               Create Task
             </Button>
           )}
-        </div>
+        </motion.div>
       ) : (
         <>
-          <div className="grid gap-4">
-            {tasks.map((task) => (
-              <TaskCard
-                key={task._id}
-                task={task}
-                onEdit={handleEditTask}
-                onDelete={handleDeleteTask}
-                isDeleting={isDeleting}
-              />
-            ))}
-          </div>
+          <AnimatePresence>
+            <div className="grid gap-4">
+              {tasks.map((task, index) => (
+                <motion.div
+                  key={task._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <TaskCard
+                    task={task}
+                    onEdit={handleEditTask}
+                    onDelete={handleDeleteTask}
+                    isDeleting={isDeleting}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </AnimatePresence>
 
           {/* Pagination */}
           {pagination.pages > 1 && (
-            <div className="flex items-center justify-center gap-2">
+            <motion.div 
+              className="flex items-center justify-center gap-4 pt-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
               <Button
                 variant="secondary"
                 disabled={pagination.page === 1}
@@ -239,7 +271,7 @@ const Tasks = () => {
               >
                 Previous
               </Button>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-400 bg-gray-800/50 px-4 py-2 rounded-lg">
                 Page {pagination.page} of {pagination.pages}
               </span>
               <Button
@@ -251,7 +283,7 @@ const Tasks = () => {
               >
                 Next
               </Button>
-            </div>
+            </motion.div>
           )}
         </>
       )}

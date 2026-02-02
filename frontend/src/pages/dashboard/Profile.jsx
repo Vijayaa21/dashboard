@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import authService from '../../services/authService';
 import { Button, Input } from '../../components/ui';
-import { User, Mail, Save } from 'lucide-react';
+import { User, Mail, Save, Calendar, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -59,38 +60,75 @@ const Profile = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        {/* Header */}
-        <div className="p-6 border-b">
-          <h1 className="text-xl font-semibold text-gray-900">Profile Settings</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Update your personal information
-          </p>
+    <div className="max-w-2xl mx-auto space-y-6">
+      {/* Profile Header Card */}
+      <motion.div 
+        className="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-800 overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        {/* Banner */}
+        <div 
+          className="h-32 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)',
+          }}
+        >
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-4 left-4 w-32 h-32 bg-white/20 rounded-full blur-2xl" />
+            <div className="absolute bottom-4 right-4 w-24 h-24 bg-white/20 rounded-full blur-2xl" />
+          </div>
         </div>
 
-        {/* Avatar Section */}
-        <div className="p-6 border-b">
-          <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center">
-              <span className="text-3xl font-bold text-blue-600">
+        {/* Avatar & Info */}
+        <div className="px-6 pb-6">
+          <div className="relative -mt-16 mb-4">
+            <motion.div 
+              className="w-32 h-32 bg-gray-900 rounded-full border-4 border-gray-900 shadow-lg flex items-center justify-center ring-4 ring-amber-500/30"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: 'spring', stiffness: 300 }}
+            >
+              <span className="text-4xl font-bold bg-gradient-to-br from-amber-400 to-orange-500 text-transparent bg-clip-text">
                 {user?.name?.charAt(0).toUpperCase()}
               </span>
+            </motion.div>
+          </div>
+          <h1 className="text-2xl font-bold text-white">{user?.name}</h1>
+          <p className="text-gray-400">{user?.email}</p>
+          <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
+            <Calendar className="w-4 h-4" />
+            <span>Member since {new Date(user?.createdAt).toLocaleDateString()}</span>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Profile Form Card */}
+      <motion.div 
+        className="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-800"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        {/* Header */}
+        <div className="p-6 border-b border-gray-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center">
+              <Shield className="w-5 h-5 text-amber-500" />
             </div>
             <div>
-              <h2 className="font-semibold text-gray-900">{user?.name}</h2>
-              <p className="text-sm text-gray-500">{user?.email}</p>
-              <p className="text-xs text-gray-400 mt-1">
-                Member since {new Date(user?.createdAt).toLocaleDateString()}
-              </p>
+              <h2 className="text-lg font-semibold text-white">Profile Settings</h2>
+              <p className="text-sm text-gray-500">Update your personal information</p>
             </div>
           </div>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="relative">
-            <User className="absolute left-3 top-9 w-5 h-5 text-gray-400" />
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
             <Input
               label="Full Name"
               type="text"
@@ -99,12 +137,15 @@ const Profile = () => {
               onChange={handleChange}
               placeholder="Enter your name"
               error={errors.name}
-              className="pl-10"
+              icon={User}
             />
-          </div>
+          </motion.div>
 
-          <div className="relative">
-            <Mail className="absolute left-3 top-9 w-5 h-5 text-gray-400" />
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+          >
             <Input
               label="Email Address"
               type="email"
@@ -113,18 +154,22 @@ const Profile = () => {
               onChange={handleChange}
               placeholder="Enter your email"
               error={errors.email}
-              className="pl-10"
+              icon={Mail}
             />
-          </div>
+          </motion.div>
 
-          <div className="flex justify-end">
-            <Button type="submit" loading={loading}>
-              <Save className="w-4 h-4 mr-2" />
+          <motion.div 
+            className="flex justify-end pt-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Button type="submit" loading={loading} icon={Save}>
               Save Changes
             </Button>
-          </div>
+          </motion.div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 };

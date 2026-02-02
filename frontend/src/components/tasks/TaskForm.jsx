@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Button, Input, Select } from '../ui';
+import { motion } from 'framer-motion';
+import { FileText, Calendar, Flag, Activity } from 'lucide-react';
 
 const TaskForm = ({ task, onSubmit, onCancel }) => {
   const [loading, setLoading] = useState(false);
@@ -66,18 +68,29 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
-        label="Title"
-        name="title"
-        value={formData.title}
-        onChange={handleChange}
-        placeholder="Enter task title"
-        error={errors.title}
-      />
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <Input
+          label="Title"
+          name="title"
+          value={formData.title}
+          onChange={handleChange}
+          placeholder="Enter task title"
+          error={errors.title}
+          icon={FileText}
+        />
+      </motion.div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+      >
+        <label className="block text-sm font-medium text-gray-300 mb-2">
           Description
         </label>
         <textarea
@@ -86,22 +99,28 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
           onChange={handleChange}
           placeholder="Enter task description (optional)"
           rows={3}
-          className={`w-full px-4 py-2 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${
-            errors.description ? 'border-red-500' : 'border-gray-300'
+          className={`w-full px-4 py-3 bg-gray-800/50 border rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 resize-none text-white placeholder-gray-500 ${
+            errors.description ? 'border-red-500' : 'border-gray-700'
           }`}
         />
         {errors.description && (
-          <p className="mt-1 text-sm text-red-600">{errors.description}</p>
+          <p className="mt-1 text-sm text-red-400">{errors.description}</p>
         )}
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <motion.div 
+        className="grid grid-cols-2 gap-4"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
         <Select
           label="Status"
           name="status"
           value={formData.status}
           onChange={handleChange}
           options={statusOptions}
+          icon={Activity}
         />
 
         <Select
@@ -110,25 +129,38 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
           value={formData.priority}
           onChange={handleChange}
           options={priorityOptions}
+          icon={Flag}
         />
-      </div>
+      </motion.div>
 
-      <Input
-        label="Due Date"
-        type="date"
-        name="dueDate"
-        value={formData.dueDate}
-        onChange={handleChange}
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+      >
+        <Input
+          label="Due Date"
+          type="date"
+          name="dueDate"
+          value={formData.dueDate}
+          onChange={handleChange}
+          icon={Calendar}
+        />
+      </motion.div>
 
-      <div className="flex justify-end gap-3 pt-4">
+      <motion.div 
+        className="flex justify-end gap-3 pt-4 border-t border-gray-800"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
         <Button type="button" variant="secondary" onClick={onCancel}>
           Cancel
         </Button>
         <Button type="submit" loading={loading}>
           {task ? 'Update Task' : 'Create Task'}
         </Button>
-      </div>
+      </motion.div>
     </form>
   );
 };
